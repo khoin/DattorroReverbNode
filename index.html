@@ -4,9 +4,9 @@
 	<meta charset="utf-8">
 	<title>WebAudio Dattorro</title>
 	<style type="text/css">
-		* {
-			font-family: sans-serif;
-		}
+		* {	font-family: sans-serif; }
+		label, input+span { font-family: monospace; font-size: 2ex; line-height: 2.2ex;}
+		input { height: 2.2ex; }
 		body {
 			margin: 20px auto;
 			max-width: 800px;
@@ -16,162 +16,155 @@
 			width: 33%;
 			display: inline-block;
 		}
+		#controls>div {
+			display: flex;
+			align-items:center;
+		}
 	</style>
 </head>
 <body>
-<button id="play">Play Kikuo1.wav</button> <button id="play2">Play Kikuo2.wav</button>
-<br>
+<button id="b1">Play kikuo.wav</button> <button id="b2">Play kikuo2.wav</button>
+<br><br>
 <div id="controls">
 	<div>
-		<label>PreLP (0-1 no lp): </label> 
+		<label>PreLPF _______(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
 		<input type="range" id="bw" name="bandwidth" max="1" step="0.0001">
 		<span id="bwv"></span>
 	</div>
 	<div>
-		<label>PreDiffuse (more 0-1 less): </label> 
+		<label>PreDiffuse1 __(👎 0 ⬅👍➡ 1 👎): </label> 
 		<input type="range" id="fi" name="inputDiffusion1" max="1" step="0.0001">
 		<span id="fiv"></span>
 	</div>
 	<div>
-		<label>PreDiffuse2 (more 0-1 less): </label> 
+		<label>PreDiffuse2___(👎 0 ⬅👍➡ 1 👎): </label> 
 		<input type="range" id="si" name="inputDiffusion2" max="1" step="0.0001">
 		<span id="siv"></span>
 	</div>
 	<div>
-		<label>Decay (fast 0-1 freeze): </label> 
+		<label>DecayRate_____(📉 0 ⬅&nbsp;&nbsp;➡ 1 🍨): </label> 
 		<input type="range" id="dc" name="decay" min="0" max="1" step="0.0001"> 
 		<span id="dcv"></span>
 	</div>
 	<div>
-		<label>DecayDiffuse (more 0-1 less): </label> 
-		<input type="range" id="fd" name="decayDiffusion1" max="1" step="0.0001">
-		<span id="fdv"></span>
+		<label>DecayDiffuse__(👎 0 ⬅👍➡ 1 👎): </label> 
+		<input type="range" id="ft" name="decayDiffusion1" max="0.999999" step="0.0001">
+		<span id="ftv"></span>
 	</div>
 	<div>
-		<label>DecayDiffuse2 (more 0-1 less): </label> 
-		<input type="range" id="sd" name="decayDiffusion2" max="1" step="0.0001">
-		<span id="sdv"></span>
+		<label>DecayDiffuse2_(👎 0 ⬅👍➡ 1 👎): </label> 
+		<input type="range" id="st" name="decayDiffusion2" max="0.999999" step="0.0001">
+		<span id="stv"></span>
 	</div>
 	<div>
-		<label>Damping (less 0-1 more): </label> 
+		<label>Damping_______(👻 0 ⬅&nbsp;&nbsp;➡ 1 📉): </label> 
 		<input type="range" id="dp" name="damping" max="1" step="0.0001">
 		<span id="dpv"></span>
 	</div>
 	<div>
-		<label>Dry (less 0-1 more): </label> 
+		<label>Dry___________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
 		<input type="range" id="dr" name="dry" max="1" step="0.0001">
 		<span id="drv"></span>
 	</div>
 	<div>
-		<label>Wet (less 0-1 more): </label> 
+		<label>Wet___________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
 		<input type="range" id="we" name="wet" max="1" step="0.0001" >
 		<span id="wev"></span> 
+	</div>
+	<br>
+	<div>
+		<label>😷 Presets</label>
+		<button id="smol">roomy owo</button> 
+		<button id="bige">churchy uwu</button>
+		<button id="frez">freezy ewe</button>
 	</div>
 </div>
 
 <div>
 	<h2>
-		(In Progress) Dattorro's 🍽 Reverb Implemented in AudioWorklet 📢
+		dattorro's reverb 📣
 	</h2>
+	<h4>
+		an (almost) faithful implementation in AudioWorklet. flexible &mdash; freezable &mdash; fast &mdash; free! 
+	</h4>
 	<p>
-		a (hopefully) faithful implementation of Dattorro's reverb in WebAudio AudioWorklet. <br>
-		this would be a more flexible reverb compared to ConvolverNode. <br>
-		it also allows you to freeze the reverb! (it sounds bad right now because you can hear the "repeats") <br>
-		i previously implemented this reverb in SuperCollider which was easier having a cubic allpass at hand.
+		💪 flexible (compared to ConvolverNode) <br>
+		🍨 freezable (just set decay to 1!) <br>
+		🚅 fast (less than 100 μs each .process() on my machine on battery saving)<br>
+		🆓 free!! (freeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee in so many ways)
 	</p>
-	<h3>📃 papers & documents</h3>
+	<h3>📃 papers papers papers</h3>
 	<ul>
-		<li>Spec for AudioWorklet [<a href="https://webaudio.github.io/web-audio-api/#audioworklet">link</a>]</li>
-		<li>Dattorro's Paper [<a href="https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf">pdf linky</a>]</li>
-		<li>Good page to quickly refer to; from Hongchan [<a href="https://developers.google.com/web/updates/2017/12/audio-worklet">link</a>]</li>
+		<li>AudioWorklet spec [<a href="https://webaudio.github.io/web-audio-api/#audioworklet">winky linky</a>]</li>
+		<li>Jon Dattorro's paper [<a href="https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf">pdf linky</a>]</li>
 	</ul>
 
-	<h3>🎼 music</h3>
-	<p>The two clips are from Kikuo's Mikukikuo5 they are both under CC BY-NC-SA. Second-clip has reverb already, but they're subtle enough that I figured it could be a good example</p>
+	<h3>🎼 music music music</h3>
+	<p>both clips are from Kikuo's Mikukikuo5 under CC BY-NC-SA: former - short fast sounds; latter - pitched.</p>
 	<ul>
 		<li>カラカラカラのカラ / Kara Kara Kara no Kara [<a href="https://kikuo.bandcamp.com/track/kara-kara-kara-no-kara">Bandcamp</a>]</li>
-		<li>MAWARU [<a href="https://kikuo.bandcamp.com/track/mawaru">bandcamp</a>]</li>
-		<li>
-六角六片三角孔ねじれ正多面体ですか？ / Is it six​-​hexagon skew polyhedron? [<a href="https://kikuo.bandcamp.com/track/is-it-six-hexagon-skew-polyhedron">Bandcamp</a>]</li>
+		<li>MAWARU [<a href="https://kikuo.bandcamp.com/track/mawaru">Bandcamp</a>]</li>
+		<li>Sea is [<a href="https://kikuo.bandcamp.com/track/sea-is">Bandcamp</a>]</li>
 	</ul>
 
-	<h3>✔ stuff for me to do</h3>
+	<h3>✅ todo todo todo</h3>
 	<ul>
-		<li>Optimization: Convert all delay times wrt sampleRate instead of sampleRate/29761 (from paper)</li>
-		<li>Optimization: Taps. Currently, they use .readDelayAt at every sample, which I think is quite costly.</li>
-		<li>Feature: Excursion. The paper suggested this and was skipped.</li>
-		<li>Considerations: There are some "repeats/flutters" audible at times. I believe this is because I rounded the delay times. I could switch to floating delay times, which means I'll have to implement delay interpolation. 🤔</li>
+		<li>add excursion (assess performance first)</li>
+		<li>add predelay</li>
+		<li>add microphone input to demo</li>
 	</ul>
 
-	<h3> ❔ try presets </h3>
-	<p>
-		<button id="smol">roomy</button>
-	</p>
+	<h3>⚖ license &amp; 💾 source</h3>
+	<p> public domain // [<a href="https://github.com/khoin/DattorroReverbNode">repo</a>]</p>
 </div>
 </body>
 <script type="module">
-	window.onload = () => {
-		let aC = new AudioContext();
-		let a  = new Audio('./kikuo.wav');
-		let b = new Audio('./kikuo2.wav');
-		
-		aC.audioWorklet.addModule('process.js').then(() => {
-			let aud = aC.createMediaElementSource(a);
-			let aud2 = aC.createMediaElementSource(b);
+const 	aC  = new AudioContext();
+const 	w1  = new Audio('./kikuo.wav'),
+		w2  = new Audio('./kikuo2.wav');
 
-			let proc = new AudioWorkletNode(aC, 'process');
-			
-			aud.connect(proc);
-			aud2.connect(proc);
-			proc.connect(aC.destination);
+const 	presets = [
+	[ 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0.4921, 0.6361 ],
+	[ 0.928 , 0.7331, 0.4534, 0.8771, 0.7839, 0.1992, 0.5975, 0.0042, 0.9619 ],
+	[ 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.195 , 0.915 , 0.194  ]
+];
 
-			play.onclick = () => {
-				aC.resume();
-				a.play();
-			}
-			play2.onclick = () => {
-				aC.resume();
-				b.play();
-			}
+aC.audioWorklet.addModule('dattorroReverb.js').then(_ => {
+	let k1 = aC.createMediaElementSource(w1);
+	let k2 = aC.createMediaElementSource(w2);
 
-			let pull = () => {
-				[...document.querySelectorAll("input")].forEach(r => {
-					r.value = proc.parameters.get(r.name).value;
-				})
-			}
-			pull();
+	let reverb = new AudioWorkletNode(aC, 'DattorroReverb');
+	
+	k1.connect(reverb);
+	k2.connect(reverb);
+	reverb.connect(aC.destination);
 
-			let push = () => {
-				[...document.querySelectorAll("input")].forEach(r => {
-					proc.parameters.get(r.name).linearRampToValueAtTime(r.value, aC.currentTime+0.005);
-					r.nextElementSibling.innerText = proc.parameters.get(r.name).value;
-				})
-			}
+	b1.onclick = _ => aC.resume() & w1.play();
+	b2.onclick = _ => aC.resume() & w2.play();
 
-			[...document.querySelectorAll("input")].forEach(r => {
-				r.onmousemove = e => {
-					push();
-				}
-			})
+	const pull = _ => 
+		[...document.querySelectorAll("input")]
+			.forEach(r => r.nextElementSibling.innerText = r.value = reverb.parameters.get(r.name).value);
 
-			smol.onclick = e => {
-				bw.value = 0.5683000087738037;
-				fi.value = 0.4666000008583069;
-				si.value = 0.5853000283241272;
-				dc.value = 0.32260000705718994;
-				fd.value = 0.6953999996185303;
-				sd.value = 0.6021999716758728;
-				dp.value = 0.644599974155426;
-				dr.value = 0.4921000003814697;
-				we.value = 0.6360999941825867;
+	const push = _ =>
+		[...document.querySelectorAll("input")]
+			.forEach(r => reverb.parameters.get(r.name).linearRampToValueAtTime(r.value, aC.currentTime+0.005));
+
+	[...document.querySelectorAll("input")]
+		.forEach(r => r.onmousemove = e => push() & pull());
+
+	[smol, bige, frez]
+		.forEach((b, i) => 
+			b.onclick = e => {
+				[bw, fi, si, dc, ft, st, dp, dr, we].forEach((p, j) => p.value = presets[i][j]);
 				push();
-				pull();
-			}
+				setTimeout(pull, 200);
+			});
 
-		},e => {
-			console.error(e);
-		});
-	}
+	pull();
 
+}, e => {
+	console.error(e);
+});
 </script>
 </html>
