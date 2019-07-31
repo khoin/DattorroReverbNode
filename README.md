@@ -41,13 +41,13 @@ Here I address the considerations I made that was not explicitly specified in th
 
 **Decision:** 32 samples for maximum excursion was chosen.
 
-**Rationale:** At first, the two quotations appear contradictory. However, I believe Dattorro meant 16 samples for the _range_ of excursion and 8 samples for the peak).
+**Rationale:** At first, the two quotations appear contradictory. However, I believe Dattorro meant 16 samples for the _range_ of excursion and 8 samples for the peak.
 
 ### Unipolar Excursion
 
 **Quote:** [no quotation available]
 
-**Decision:** Delay length including excursion is: `length + (peak_excursion + excursion(t))` instead of `length + excursion(t)`
+**Decision:** Delay length including excursion is: `length - e_depth + e_depth * excursion(t)` instead of `length + e_depth * excursion(t)`
 
 **Rationale:** Because of the way the delay lines are implemented, excursions are not oscillating around original delay length, but the delays are contracting by twice the length from center to peak of the original excursion.
 

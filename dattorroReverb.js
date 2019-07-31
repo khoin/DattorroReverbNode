@@ -76,42 +76,26 @@ class DattorroReverb extends AudioWorkletProcessor {
 		this._Delays    = [];
 		this._pDLength  = sampleRate + (128 - sampleRate%128)
 		this._preDelay  = new Float32Array(this._pDLength);
-		this._pDWrite    = 0;
+		this._pDWrite   = 0;
 		this._lp1       = 0.0;
 		this._lp2       = 0.0;
 		this._lp3       = 0.0;
 
-		// pre
-		this.makeDelay(0.004771345); 
-		this.makeDelay(0.003595309);
-		this.makeDelay(0.012734787);
-		this.makeDelay(0.009307483);
-
-		// left 
-		this.makeDelay(0.022579886); 
-		this.makeDelay(0.149625349);
-		this.makeDelay(0.060481839);
-		this.makeDelay(0.1249958  );
-
-		// right 
-		this.makeDelay(0.030509727); 
-		this.makeDelay(0.141695508);
-		this.makeDelay(0.089244313);
-		this.makeDelay(0.106280031);
+		[
+			0.004771345, 0.003595309, 0.012734787, 0.009307483, 
+			0.022579886, 0.149625349, 0.060481839, 0.1249958  , 
+			0.030509727, 0.141695508, 0.089244313, 0.106280031
+		].forEach(x => this.makeDelay(x));
 
 		this._taps = Int16Array.from([
-			0.008937872,0.099929438,0.064278754,0.067067639,0.066866033,0.006283391,0.035818689,
-			0.011861161,0.121870905,0.041262054,0.08981553 ,0.070931756,0.011256342,0.004065724
-		], x => Math.round(this.conv(x)));
-	}
-
-	conv (value) {
-		return value*sampleRate;
+			0.008937872, 0.099929438, 0.064278754, 0.067067639, 0.066866033, 0.006283391, 0.035818689, 
+			0.011861161, 0.121870905, 0.041262054, 0.08981553 , 0.070931756, 0.011256342, 0.004065724
+		], x => Math.round(x * sampleRate));
 	}
 
 	makeDelay (length, noConversion) { 
 		// len, array, write, read
-		let len = Math.round(this.conv(length));
+		let len = Math.round(length * sampleRate);
 		this._Delays.push([
 			len,
 			new Float32Array(len),
