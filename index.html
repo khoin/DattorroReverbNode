@@ -6,14 +6,14 @@
 	<style type="text/css">
 		* {	font-family: sans-serif; }
 		label, input+span { font-family: monospace; font-size: 2ex; line-height: 2.2ex;}
-		input { height: 2.2ex; }
+		input { height: 2.2ex; width: 34%;}
 		body {
 			margin: 20px auto;
-			max-width: 800px;
+			max-width: 880px;
 			padding: 5px;
 		}
 		div>label {
-			width: 33%;
+			width: 34%;
 			display: inline-block;
 		}
 		#controls>div {
@@ -23,53 +23,63 @@
 	</style>
 </head>
 <body>
-<button id="b1">Play kikuo.wav</button> <button id="b2">Play kikuo2.wav</button>
+<button id="b1">Play kikuo.wav</button> <button id="b2">Play kikuo2.wav</button> <button id="b3">Toggle Mic</button>
 <br><br>
 <div id="controls">
 	<div>
+		<label>PreDelay _____(🔻 0 ⬅&nbsp;&nbsp;➡ sr🔺): </label> 
+		<input type="range" id="pd" name="preDelay" max="47999" step="1">
+		<span></span>
+	</div>
+	<div>
 		<label>PreLPF _______(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
-		<input type="range" id="bw" name="bandwidth" max="1" step="0.0001">
-		<span id="bwv"></span>
+		<input type="range" id="bw" name="bandwidth" max="1" step="0.000001">
+		<span></span>
 	</div>
 	<div>
 		<label>PreDiffuse1 __(👎 0 ⬅👍➡ 1 👎): </label> 
-		<input type="range" id="fi" name="inputDiffusion1" max="1" step="0.0001">
-		<span id="fiv"></span>
+		<input type="range" id="fi" name="inputDiffusion1" max="1" step="0.000001">
+		<span></span>
 	</div>
 	<div>
-		<label>PreDiffuse2___(👎 0 ⬅👍➡ 1 👎): </label> 
-		<input type="range" id="si" name="inputDiffusion2" max="1" step="0.0001">
-		<span id="siv"></span>
+		<label>PreDiffuse2 __(👎 0 ⬅👍➡ 1 👎): </label> 
+		<input type="range" id="si" name="inputDiffusion2" max="1" step="0.000001">
+		<span></span>
 	</div>
 	<div>
-		<label>DecayRate_____(📉 0 ⬅&nbsp;&nbsp;➡ 1 🍨): </label> 
-		<input type="range" id="dc" name="decay" min="0" max="1" step="0.0001"> 
-		<span id="dcv"></span>
+		<label>DecayRate ____(📉 0 ⬅&nbsp;&nbsp;➡ 1 🍨): </label> 
+		<input type="range" id="dc" name="decay" min="0" max="1" step="0.000001"> 
+		<span></span>
 	</div>
 	<div>
-		<label>DecayDiffuse__(👎 0 ⬅👍➡ 1 👎): </label> 
-		<input type="range" id="ft" name="decayDiffusion1" max="0.999999" step="0.0001">
-		<span id="ftv"></span>
+		<label>DecayDiffuse _(👎 0 ⬅👍➡ 1 👎): </label> 
+		<input type="range" id="ft" name="decayDiffusion1" max="0.999999" step="0.000001">
+		<span></span>
 	</div>
 	<div>
 		<label>DecayDiffuse2_(👎 0 ⬅👍➡ 1 👎): </label> 
-		<input type="range" id="st" name="decayDiffusion2" max="0.999999" step="0.0001">
-		<span id="stv"></span>
+		<input type="range" id="st" name="decayDiffusion2" max="0.999999" step="0.000001">
+		<span></span>
 	</div>
 	<div>
-		<label>Damping_______(👻 0 ⬅&nbsp;&nbsp;➡ 1 📉): </label> 
-		<input type="range" id="dp" name="damping" max="1" step="0.0001">
-		<span id="dpv"></span>
+		<label>Damping ______(👻 0 ⬅&nbsp;&nbsp;➡ 1 📉): </label> 
+		<input type="range" id="dp" name="damping" max="1" step="0.000001">
+		<span></span>
 	</div>
 	<div>
-		<label>Dry___________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
-		<input type="range" id="dr" name="dry" max="1" step="0.0001">
-		<span id="drv"></span>
+		<label>Excursion ____(💤 0 ⬅&nbsp;&nbsp;➡ 32🔆): </label> 
+		<input type="range" id="ex" name="excursion" max="32" step="1">
+		<span></span>
 	</div>
 	<div>
-		<label>Wet___________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
-		<input type="range" id="we" name="wet" max="1" step="0.0001" >
-		<span id="wev"></span> 
+		<label>Dry __________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
+		<input type="range" id="dr" name="dry" max="1" step="0.000001">
+		<span></span>
+	</div>
+	<div>
+		<label>Wet __________(🔻 0 ⬅&nbsp;&nbsp;➡ 1 🔺): </label> 
+		<input type="range" id="we" name="wet" max="1" step="0.000001" >
+		<span></span> 
 	</div>
 	<br>
 	<div>
@@ -77,6 +87,7 @@
 		<button id="smol">roomy owo</button> 
 		<button id="bige">churchy uwu</button>
 		<button id="frez">freezy ewe</button>
+		<button id="ether">ethery .w.</button>
 	</div>
 </div>
 
@@ -85,12 +96,12 @@
 		dattorro's reverb 📣
 	</h2>
 	<h4>
-		an (almost) faithful implementation in AudioWorklet. flexible &mdash; freezable &mdash; fast &mdash; free! 
+		a faithful implementation entirely in Javascript in AudioWorklet. flexible &mdash; freezable &mdash; fast &mdash; free! 
 	</h4>
 	<p>
 		💪 flexible (compared to ConvolverNode) <br>
 		🍨 freezable (just set decay to 1!) <br>
-		🚅 fast (less than 100 μs each .process() on my machine on battery saving)<br>
+		🚅 fast (around 0.3ms each .process() on CPU 6x slowdown in Chrome DevTools)<br>
 		🆓 free!! (freeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee in so many ways)
 	</p>
 	<h3>📃 papers papers papers</h3>
@@ -102,16 +113,22 @@
 	<h3>🎼 music music music</h3>
 	<p>both clips are from Kikuo's Mikukikuo5 under CC BY-NC-SA: former - short fast sounds; latter - pitched.</p>
 	<ul>
-		<li>カラカラカラのカラ / Kara Kara Kara no Kara [<a href="https://kikuo.bandcamp.com/track/kara-kara-kara-no-kara">Bandcamp</a>]</li>
 		<li>MAWARU [<a href="https://kikuo.bandcamp.com/track/mawaru">Bandcamp</a>]</li>
 		<li>Sea is [<a href="https://kikuo.bandcamp.com/track/sea-is">Bandcamp</a>]</li>
 	</ul>
 
 	<h3>✅ todo todo todo</h3>
 	<ul>
-		<li>add excursion (assess performance first)</li>
-		<li>add predelay</li>
-		<li>add microphone input to demo</li>
+		<li>find guitar/drum example clips</li>
+	</ul>
+
+	<h3>🤔 personal considerations (i.e., deviations from the paper) & misc.</h3>
+	<ul>
+		<li>i didn't employ linear interpolation nor all-pass interpolation anywhere in this implementation</li>
+		<li>32 samples chosen for max excursion depth (because Dattorro's sample-rate is roughly half of 48 kHz)</li>
+		<li>decayRate is <em>not</em> T60. what? (this is an open question, but I believe it is possible to calculate)</li>
+		<li>decayDiffusion2 is free, instead of bounded to decayRate</li>
+		<li>refer to README.md for a write-up of these considerations and other minor details</li>
 	</ul>
 
 	<h3>⚖ license &amp; 💾 source</h3>
@@ -124,39 +141,65 @@ const 	w1  = new Audio('./kikuo.wav'),
 		w2  = new Audio('./kikuo2.wav');
 
 const 	presets = [
-	[ 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0.4921, 0.6361 ],
-	[ 0.928 , 0.7331, 0.4534, 0.8771, 0.7839, 0.1992, 0.5975, 0.0042, 0.9619 ],
-	[ 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.195 , 0.915 , 0.194  ]
+	[ 525  , 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0 , 0.2921, 0.4361 ],
+	[ 0     , 0.928 , 0.7331, 0.4534, 0.8771, 0.7839, 0.1992, 0.5975, 0 , 0.0042, 0.9619 ],
+	[ 0     , 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.195 , 12, 0.915 , 0.194  ],
+	[ 0     , 0.999 , 0.23  , 0.667 , 0.86  , 0.7   , 0.5   , 0.3   , 30, 0.53  , 0.17   ]
 ];
+
+let micState = false;
 
 aC.audioWorklet.addModule('dattorroReverb.js').then(_ => {
 	let k1 = aC.createMediaElementSource(w1);
 	let k2 = aC.createMediaElementSource(w2);
+	let m  = undefined;
+	let mg = aC.createGain();
 
 	let reverb = new AudioWorkletNode(aC, 'DattorroReverb');
 	
 	k1.connect(reverb);
 	k2.connect(reverb);
+	mg.connect(reverb);
 	reverb.connect(aC.destination);
 
 	b1.onclick = _ => aC.resume() & w1.play();
 	b2.onclick = _ => aC.resume() & w2.play();
+	b3.onclick = _ => {
+		if (micState) {
+			mg.gain.linearRampToValueAtTime(0, aC.currentTime + 0.1);
+			b3.style.background = '';
+			micState = false;
+		} else {
+			if(m == undefined)
+				navigator.getUserMedia({ audio: true }, stream => {
+					m = aC.createMediaStreamSource(stream);
+					m.connect(mg);
+				}, () => {
+					b3.style.background = '';
+					alert("Failed getting microphone.");
+					micState = false;
+				});
+			mg.gain.linearRampToValueAtTime(1, aC.currentTime + 0.1);
+			b3.style.background = 'darksalmon';
+			micState = true;
+		}
+	}
 
 	const pull = _ => 
 		[...document.querySelectorAll("input")]
-			.forEach(r => r.nextElementSibling.innerText = r.value = reverb.parameters.get(r.name).value);
+			.forEach(r => (r.value = reverb.parameters.get(r.name).value) & (r.nextElementSibling.innerText = r.value));
 
 	const push = _ =>
 		[...document.querySelectorAll("input")]
-			.forEach(r => reverb.parameters.get(r.name).linearRampToValueAtTime(r.value, aC.currentTime+0.005));
+			.forEach(r => reverb.parameters.get(r.name).setValueAtTime(r.value, aC.currentTime));
 
 	[...document.querySelectorAll("input")]
-		.forEach(r => r.onmousemove = e => push() & pull());
+		.forEach(r => r.onmousemove = e => push() & (r.nextElementSibling.innerText = r.value));
 
-	[smol, bige, frez]
+	[smol, bige, frez, ether]
 		.forEach((b, i) => 
 			b.onclick = e => {
-				[bw, fi, si, dc, ft, st, dp, dr, we].forEach((p, j) => p.value = presets[i][j]);
+				[pd, bw, fi, si, dc, ft, st, dp, ex, dr, we].forEach((p, j) => p.value = presets[i][j]);
 				push();
 				setTimeout(pull, 200);
 			});
