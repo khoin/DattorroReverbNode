@@ -197,7 +197,7 @@ Promise.all([
 
 	const push = _ =>
 		[...document.querySelectorAll("input")]
-			.forEach(r => reverb.parameters.get(r.name).setValueAtTime(r.value, aC.currentTime));
+			.forEach(r => reverb.parameters.get(r.name).linearRampToValueAtTime(r.value, aC.currentTime+0.190));
 
 	[...document.querySelectorAll("input")]
 		.forEach(r => r.onmousemove = e => push() & (r.nextElementSibling.innerText = r.value));

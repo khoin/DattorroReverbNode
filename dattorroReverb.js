@@ -142,7 +142,7 @@ class DattorroReverb extends AudioWorkletProcessor {
 			we = parameters.wet[0]            * 0.6, // lo and ro are both multiplied by 0.6 anyways
 			dr = parameters.dry[0]                 ;
 
-		let lIn     = inputs[0][0],
+		let lIn		= inputs[0][0],
 			rIn		= inputs[0][1],
 			lOut	= outputs[0][0],
 			rOut	= outputs[0][1];

@@ -30,9 +30,9 @@ Here I address the considerations I made that was not explicitly specified in th
 
 **Quote:** "Linear interpolation, or better yet, all-pass interpolation can be efficiently employed [to ...] the two indicated delay lines [...]" (1.3.7, p. 665)
 
-**Decision:** No interpolation was employed.
+**Decision:** Linear interpolation was for excursion.
 
-**Rationale:** Although all-pass interpolation is inexpensive - one multiplication, two additions ([j.o.s.](https://ccrma.stanford.edu/~jos/pasp/First_Order_Allpass_Interpolation.html)), I've decided not to implementation those. This decision might be reverted in the future.
+**Rationale:** Although all-pass interpolation is also inexpensive - one multiplication, two additions ([j.o.s.](https://ccrma.stanford.edu/~jos/pasp/First_Order_Allpass_Interpolation.html)), I've decided to go with linear interpolation. Some artifacts are audible if you listen closely.
 
 
 ### 32 Sample Max Excursion
@@ -80,7 +80,8 @@ Currently, the `decayRate` parameter is a number which the signal in the tank wi
 
 ## Other Works
 
-Clips used in the demo page are from Kikuo's [Mikukikuo 5](https://kikuo.bandcamp.com/album/kikuo-miku-5) within tracks under CC BY-NC-SA.
+* Clips from Kikuo's [Mikukikuo 5](https://kikuo.bandcamp.com/album/kikuo-miku-5) under CC BY-NC-SA.
+* Guitar from user Placeboing on [Freesound](https://freesound.org/people/placeboing/sounds/338387/) under CC 0.
 
 ## License
 I release the source code within `index.html` and `dattorroReverb.js` under Public Domain.
