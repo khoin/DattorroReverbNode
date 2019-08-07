@@ -93,7 +93,7 @@ class DattorroReverb extends AudioWorkletProcessor {
 		], x => Math.round(x * sampleRate));
 	}
 
-	makeDelay(length, noConversion) { 
+	makeDelay(length) { 
 		// len, array, write, read
 		let len = Math.round(length * sampleRate);
 		this._Delays.push([
@@ -118,9 +118,9 @@ class DattorroReverb extends AudioWorkletProcessor {
 
 	// readDelayAt Linear Interpolated
 	readDelayLAt(index, i) {
-		let frac = i-~~i;
-		let curr = this._Delays[index][1][(this._Delays[index][3] + ~~i)%this._Delays[index][0]];
-		return curr + frac * (this._Delays[index][1][(this._Delays[index][3] + 1 + ~~i)%this._Delays[index][0]] - curr);
+		let d = this._Delays[index];
+		let curr = d[1][(d[3] + ~~i)%d[0]];
+		return curr + (i-~~i++) * (d[1][(d[3] + ~~i)%d[0]] - curr);
 	}
 
 	readPreDelay(index) {
@@ -142,8 +142,10 @@ class DattorroReverb extends AudioWorkletProcessor {
 			we = parameters.wet[0]            * 0.6, // lo and ro are both multiplied by 0.6 anyways
 			dr = parameters.dry[0]                 ;
 
-		let lOut	= outputs[0][0];
-		let rOut	= outputs[0][1];
+		let lIn     = inputs[0][0],
+			rIn		= inputs[0][1],
+			lOut	= outputs[0][0],
+			rOut	= outputs[0][1];
 
 		// write to predelay
 		this._preDelay.set(
@@ -153,12 +155,12 @@ class DattorroReverb extends AudioWorkletProcessor {
 
 		let i = 0;
 		while (i < 128) {
-			let lo = 0.0;
-			let ro = 0.0;
+			let lo = 0.0,
+				ro = 0.0;
 
 			this._lp1        = this._preDelay[(this._pDLength + this._pDWrite - pd + i)%this._pDLength] * bw + (1 - bw) * this._lp1;
 
-			// Please note: The groupings and formatting below does not bare any useful information about 
+			// Please note: The groupings and formatting below does not bear any useful information about 
 			//              the topology of the network. I just want orderly looking text.
 
 			// pre
@@ -203,12 +205,11 @@ class DattorroReverb extends AudioWorkletProcessor {
 				- this.readDelayAt(11, this._taps[13]);
 
 			// write
-			lOut[i] = inputs[0][0][i] * dr + lo * we;
-			rOut[i] = inputs[0][1][i] * dr + ro * we;
+			lOut[i] = lIn[i] * dr + lo * we;
+			rOut[i] = rIn[i] * dr + ro * we;
 
 			i++;
-			// This below could be optimized so that we only update
-			// our indexes every 128-sample
+
 			for (let j = 0; j < this._Delays.length; j++) {
 				let d = this._Delays[j];
 				d[2] = (d[2] + 1) % d[0];
