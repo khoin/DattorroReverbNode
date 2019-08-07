@@ -20,10 +20,12 @@
 			display: flex;
 			align-items:center;
 		}
+		#clips { display: inline-block; }
 	</style>
 </head>
 <body>
-<button id="b1">Play kikuo.wav</button> <button id="b2">Play kikuo2.wav</button> <button id="b3">Toggle Mic</button>
+<div id="clips"></div>
+<button id="mic">Toggle Mic</button>
 <br><br>
 <div id="controls">
 	<div>
@@ -87,7 +89,7 @@
 		<button id="smol">roomy owo</button> 
 		<button id="bige">churchy uwu</button>
 		<button id="frez">freezy ewe</button>
-		<button id="ether">ethery .w.</button>
+		<button id="ether">ethery @w@</button>
 	</div>
 </div>
 
@@ -111,23 +113,20 @@
 	</ul>
 
 	<h3>🎼 music music music</h3>
-	<p>both clips are from Kikuo's Mikukikuo5 under CC BY-NC-SA: former - short fast sounds; latter - pitched.</p>
+	<p>clips are from Placeboing on Freesound under CC 0 and Kikuo's Mikukikuo5 under CC BY-NC-SA.</p>
 	<ul>
+		<li>Placeboing [<a href="https://freesound.org/people/placeboing/sounds/338387/">Freesound</a>]</li>
 		<li>MAWARU [<a href="https://kikuo.bandcamp.com/track/mawaru">Bandcamp</a>]</li>
 		<li>Sea is [<a href="https://kikuo.bandcamp.com/track/sea-is">Bandcamp</a>]</li>
 	</ul>
 
 	<h3>✅ todo todo todo</h3>
 	<ul>
-		<li>find guitar/drum example clips</li>
+		<li>nothing for now.</li>
 	</ul>
 
 	<h3>🤔 personal considerations (i.e., deviations from the paper) & misc.</h3>
 	<ul>
-		<li>i didn't employ linear interpolation nor all-pass interpolation anywhere in this implementation</li>
-		<li>32 samples chosen for max excursion depth (because Dattorro's sample-rate is roughly half of 48 kHz)</li>
-		<li>decayRate is <em>not</em> T60. what? (this is an open question, but I believe it is possible to calculate)</li>
-		<li>decayDiffusion2 is free, instead of bounded to decayRate</li>
 		<li>refer to README.md for a write-up of these considerations and other minor details</li>
 	</ul>
 
@@ -137,37 +136,44 @@
 </body>
 <script type="module">
 const 	aC  = new AudioContext();
-const 	w1  = new Audio('./kikuo.wav'),
-		w2  = new Audio('./kikuo2.wav');
 
 const 	presets = [
-	[ 525  , 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0 , 0.2921, 0.4361 ],
-	[ 0     , 0.928 , 0.7331, 0.4534, 0.8771, 0.7839, 0.1992, 0.5975, 0 , 0.0042, 0.9619 ],
+	[ 1525  , 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0 , 0.2921, 0.4361 ],
+	[ 0     , 0.928 , 0.7331, 0.4534, 0.8271, 0.7839, 0.1992, 0.5975, 0 , 0.0042, 0.9000 ],
 	[ 0     , 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.195 , 12, 0.915 , 0.194  ],
-	[ 0     , 0.999 , 0.23  , 0.667 , 0.86  , 0.7   , 0.5   , 0.3   , 30, 0.53  , 0.17   ]
+	[ 0     , 0.999 , 0.23  , 0.667 , 0.86  , 0.7   , 0.5   , 0.3   , 30, 0.53  , 0.30   ]
 ];
+
+let audios   = ['placeboing', 'kikuo', 'kikuo2', 'sine'].map(a => new Audio(`./${a}.wav`));
 
 let micState = false;
 
-aC.audioWorklet.addModule('dattorroReverb.js').then(_ => {
-	let k1 = aC.createMediaElementSource(w1);
-	let k2 = aC.createMediaElementSource(w2);
+Promise.all([
+	aC.audioWorklet.addModule('dattorroReverb.js')
+]).then(_ => {
+	let esrc = audios.map(a => aC.createMediaElementSource(a));
 	let m  = undefined;
 	let mg = aC.createGain();
+	let mx = aC.createGain();
 
 	let reverb = new AudioWorkletNode(aC, 'DattorroReverb');
 	
-	k1.connect(reverb);
-	k2.connect(reverb);
+	esrc.forEach(src => src.connect(mx));
 	mg.connect(reverb);
+	mx.connect(reverb);
 	reverb.connect(aC.destination);
 
-	b1.onclick = _ => aC.resume() & w1.play();
-	b2.onclick = _ => aC.resume() & w2.play();
-	b3.onclick = _ => {
+	audios.forEach((aud, i) => {
+		let btn = document.createElement("button");
+		btn.innerText = `Play ${aud.src.split("/").pop()}`;
+		btn.onclick = _ => aC.resume() & audios[i].play();
+		clips.appendChild(btn);
+	})
+
+	mic.onclick = _ => {
 		if (micState) {
 			mg.gain.linearRampToValueAtTime(0, aC.currentTime + 0.1);
-			b3.style.background = '';
+			mic.style.background = '';
 			micState = false;
 		} else {
 			if(m == undefined)
@@ -175,12 +181,12 @@ aC.audioWorklet.addModule('dattorroReverb.js').then(_ => {
 					m = aC.createMediaStreamSource(stream);
 					m.connect(mg);
 				}, () => {
-					b3.style.background = '';
+					mic.style.background = '';
 					alert("Failed getting microphone.");
 					micState = false;
 				});
 			mg.gain.linearRampToValueAtTime(1, aC.currentTime + 0.1);
-			b3.style.background = 'darksalmon';
+			mic.style.background = 'darksalmon';
 			micState = true;
 		}
 	}

@@ -93,7 +93,7 @@ class DattorroReverb extends AudioWorkletProcessor {
 		], x => Math.round(x * sampleRate));
 	}
 
-	makeDelay (length, noConversion) { 
+	makeDelay(length, noConversion) { 
 		// len, array, write, read
 		let len = Math.round(length * sampleRate);
 		this._Delays.push([
@@ -104,25 +104,32 @@ class DattorroReverb extends AudioWorkletProcessor {
 		]);
 	}
 
-	writeDelay (index, data) {
+	writeDelay(index, data) {
 		this._Delays[index][1][this._Delays[index][2]] = data;
 	}
 
-	readDelay (index) {
+	readDelay(index) {
 		return this._Delays[index][1][this._Delays[index][3]];
 	}
 
-	readDelayAt (index, i) {
+	readDelayAt(index, i) {
 		return this._Delays[index][1][(this._Delays[index][3] + i)%this._Delays[index][0]];
 	}
 
-	readPreDelay (index) {
+	// readDelayAt Linear Interpolated
+	readDelayLAt(index, i) {
+		let frac = i-~~i;
+		let curr = this._Delays[index][1][(this._Delays[index][3] + ~~i)%this._Delays[index][0]];
+		return curr + frac * (this._Delays[index][1][(this._Delays[index][3] + 1 + ~~i)%this._Delays[index][0]] - curr);
+	}
+
+	readPreDelay(index) {
 		return this._Delays[index][1][this._Delays[index][2]];
 	}
 
 	// Only accepts one input, two channels.
 	// Spits one output, two channels.
-	process (inputs, outputs, parameters) {
+	process(inputs, outputs, parameters) {
 		let pd = ~~parameters.preDelay[0]          ,
 			bw = parameters.bandwidth[0]           ,
 			fi = parameters.inputDiffusion1[0]     , 
@@ -155,29 +162,29 @@ class DattorroReverb extends AudioWorkletProcessor {
 			//              the topology of the network. I just want orderly looking text.
 
 			// pre
-			this.writeDelay(0,                              this._lp1          - fi * this.readDelay(0)    );
-			this.writeDelay(1, fi * (this.readPreDelay(0) - this.readDelay(1)) +      this.readDelay(0)    );
-			this.writeDelay(2, fi *  this.readPreDelay(1) + this.readDelay(1)  - si * this.readDelay(2)    );
-			this.writeDelay(3, si * (this.readPreDelay(2) - this.readDelay(3)) +      this.readDelay(2)    );
+			this.writeDelay(0,                              this._lp1          - fi * this.readDelay(0) );
+			this.writeDelay(1, fi * (this.readPreDelay(0) - this.readDelay(1)) +      this.readDelay(0) );
+			this.writeDelay(2, fi *  this.readPreDelay(1) + this.readDelay(1)  - si * this.readDelay(2) );
+			this.writeDelay(3, si * (this.readPreDelay(2) - this.readDelay(3)) +      this.readDelay(2) );
 
 			let split       =  si *  this.readPreDelay(3) + this.readDelay(3);
 
 			// 1Hz (footnote 14, pp. 665)
-			let excursion   =  ~~(ex * (1+ Math.cos(currentTime*6.28))); // Non-negative means I can do the ~~flooring trick
+			let excursion   =  ex * (1 + Math.cos(currentTime*6.28)); 
 			
 			// left
-			this.writeDelay( 4, split +       dc * this.readDelay(11)             + ft * this.readDelayAt(4, excursion) ); // tank diffuse 1
-			this.writeDelay( 5,                    this.readDelayAt(4, excursion) - ft * this.readPreDelay(4)           ); // long delay 1
-			this._lp2        =          (1 - dp) * this.readDelay(5)              + dp * this._lp2                       ; // damp 1
-			this.writeDelay( 6,               dc * this._lp2                      - st * this.readDelay(6)              ); // tank diffuse 2
-			this.writeDelay( 7,                    this.readDelay(6)              + st * this.readPreDelay(6)           ); // long delay 2
+			this.writeDelay( 4, split +       dc * this.readDelay(11)             + ft * this.readDelayLAt(4, excursion) ); // tank diffuse 1
+			this.writeDelay( 5,                    this.readDelayLAt(4, excursion)- ft * this.readPreDelay(4)            ); // long delay 1
+			this._lp2        =          (1 - dp) * this.readDelay(5)              + dp * this._lp2                        ; // damp 1
+			this.writeDelay( 6,               dc * this._lp2                      - st * this.readDelay(6)               ); // tank diffuse 2
+			this.writeDelay( 7,                    this.readDelay(6)              + st * this.readPreDelay(6)            ); // long delay 2
 
 			// right
-			this.writeDelay( 8, split +       dc * this.readDelay(7)              + ft * this.readDelayAt(8, excursion) ); // tank diffuse 3
-			this.writeDelay( 9,                    this.readDelayAt(8, excursion) - ft * this.readPreDelay(8)           ); // long delay 3
-			this._lp3        =          (1 - dp) * this.readDelay(9)              + dp * this._lp3                       ; // damper 2
-			this.writeDelay(10,               dc * this._lp3                      - st * this.readDelay(10)             ); // tank diffuse 4
-			this.writeDelay(11,                    this.readDelay(10)             + st * this.readPreDelay(10)          ); // long delay 4
+			this.writeDelay( 8, split +       dc * this.readDelay(7)              + ft * this.readDelayLAt(8, excursion) ); // tank diffuse 3
+			this.writeDelay( 9,                    this.readDelayLAt(8, excursion)- ft * this.readPreDelay(8)            ); // long delay 3
+			this._lp3        =          (1 - dp) * this.readDelay(9)              + dp * this._lp3                        ; // damper 2
+			this.writeDelay(10,               dc * this._lp3                      - st * this.readDelay(10)              ); // tank diffuse 4
+			this.writeDelay(11,                    this.readDelay(10)             + st * this.readPreDelay(10)           ); // long delay 4
 
 			lo =  this.readDelayAt( 9, this._taps[0])
 				+ this.readDelayAt( 9, this._taps[1])
