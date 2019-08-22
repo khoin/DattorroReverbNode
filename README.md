@@ -84,4 +84,4 @@ Currently, the `decayRate` parameter is a number which the signal in the tank wi
 * Guitar from user Placeboing on [Freesound](https://freesound.org/people/placeboing/sounds/338387/) under CC 0.
 
 ## License
-I release the source code within `index.html` and `dattorroReverb.js` under Public Domain.
+For the two files `index.html` and `dattorroReverb.js`, refer to [LICENSE](LICENSE) - Public Domain + No-Liability.

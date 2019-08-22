@@ -1,3 +1,12 @@
+/*
+In jurisdictions that recognize copyright laws, this software is to
+be released into the public domain.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+THE AUTHOR(S) SHALL NOT BE LIABLE FOR ANYTHING, ARISING FROM, OR IN
+CONNECTION WITH THE SOFTWARE OR THE DISTRIBUTION OF THE SOFTWARE.
+*/
+
 class DattorroReverb extends AudioWorkletProcessor {
 	
 	static get parameterDescriptors() {
@@ -8,61 +17,61 @@ class DattorroReverb extends AudioWorkletProcessor {
 				maxValue: sampleRate-1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'bandwidth',
+				name: 'bandwidth',
 				defaultValue: 0.9999,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'inputDiffusion1',
+				name: 'inputDiffusion1',
 				defaultValue: 0.75,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'inputDiffusion2',
+				name: 'inputDiffusion2',
 				defaultValue: 0.625,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'decay',
+				name: 'decay',
 				defaultValue: 0.5,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'decayDiffusion1',
+				name: 'decayDiffusion1',
 				defaultValue: 0.7,
 				minValue: 0,
 				maxValue: 0.999999,
 				automationRate: "k-rate"
 		},{
-			 	name: 'decayDiffusion2',
+				name: 'decayDiffusion2',
 				defaultValue: 0.5,
 				minValue: 0,
 				maxValue: 0.999999,
 				automationRate: "k-rate"
 		},{
-			 	name: 'damping',
+				name: 'damping',
 				defaultValue: 0.005,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'excursion',
+				name: 'excursion',
 				defaultValue: 16,
 				minValue: 0,
 				maxValue: 32,
 				automationRate: "k-rate"
 		},{
-			 	name: 'wet',
+				name: 'wet',
 				defaultValue: 0.3,
 				minValue: 0,
 				maxValue: 1,
 				automationRate: "k-rate"
 		},{
-			 	name: 'dry',
+				name: 'dry',
 				defaultValue: 0.6,
 				minValue: 0,
 				maxValue: 1,
@@ -130,22 +139,22 @@ class DattorroReverb extends AudioWorkletProcessor {
 	// Only accepts one input, two channels.
 	// Spits one output, two channels.
 	process(inputs, outputs, parameters) {
-		let pd = ~~parameters.preDelay[0]          ,
-			bw = parameters.bandwidth[0]           ,
-			fi = parameters.inputDiffusion1[0]     , 
-			si = parameters.inputDiffusion2[0]     ,
-			dc = parameters.decay[0]               ,
-			ft = parameters.decayDiffusion1[0]     ,
-			st = parameters.decayDiffusion2[0]     ,
-			dp = parameters.damping[0]             ,
-			ex = parameters.excursion[0]           ,
-			we = parameters.wet[0]            * 0.6, // lo and ro are both multiplied by 0.6 anyways
-			dr = parameters.dry[0]                 ;
+		let pd   = ~~parameters.preDelay[0]          ,
+			bw   = parameters.bandwidth[0]           ,
+			fi   = parameters.inputDiffusion1[0]     , 
+			si   = parameters.inputDiffusion2[0]     ,
+			dc   = parameters.decay[0]               ,
+			ft   = parameters.decayDiffusion1[0]     ,
+			st   = parameters.decayDiffusion2[0]     ,
+			dp   = parameters.damping[0]             ,
+			ex   = parameters.excursion[0]           ,
+			we   = parameters.wet[0]            * 0.6, // lo and ro are both multiplied by 0.6 anyways
+			dr   = parameters.dry[0]                 ;
 
-		let lIn		= inputs[0][0],
-			rIn		= inputs[0][1],
-			lOut	= outputs[0][0],
-			rOut	= outputs[0][1];
+		let lIn  = inputs[0][0],
+			rIn  = inputs[0][1],
+			lOut = outputs[0][0],
+			rOut = outputs[0][1];
 
 		// write to predelay
 		this._preDelay.set(
@@ -159,9 +168,6 @@ class DattorroReverb extends AudioWorkletProcessor {
 				ro = 0.0;
 
 			this._lp1        = this._preDelay[(this._pDLength + this._pDWrite - pd + i)%this._pDLength] * bw + (1 - bw) * this._lp1;
-
-			// Please note: The groupings and formatting below does not bear any useful information about 
-			//              the topology of the network. I just want orderly looking text.
 
 			// pre
 			this.writeDelay(0,                              this._lp1          - fi * this.readDelay(0) );
