@@ -152,15 +152,18 @@ class DattorroReverb extends AudioWorkletProcessor {
 			dr   = parameters.dry[0]                 ;
 
 		let lIn  = inputs[0][0],
-			rIn  = inputs[0][1],
 			lOut = outputs[0][0],
 			rOut = outputs[0][1];
 
-		// write to predelay
-		this._preDelay.set(
-			Float32Array.from(inputs[0][0], (n, i) => (n + inputs[0][1][i]) * 0.5),
-			this._pDWrite
-		);
+		// write to predelay, or fill pre-delay with silence if no input
+		if (inputs[0].length != 0) {
+			this._preDelay.set(
+				inputs[0][0],
+				this._pDWrite
+			);
+		} else {
+			this._preDelay.fill(0, this._pDWrite, this._pDWrite + 128);
+		}
 
 		let i = 0;
 		while (i < 128) {
@@ -210,9 +213,13 @@ class DattorroReverb extends AudioWorkletProcessor {
 				- this.readDelayAt(10, this._taps[12])
 				- this.readDelayAt(11, this._taps[13]);
 
-			// write
-			lOut[i] = lIn[i] * dr + lo * we;
-			rOut[i] = rIn[i] * dr + ro * we;
+			lOut[i] = lo * we;
+			rOut[i] = ro * we;
+
+			if (lIn) {
+				lOut[i] += lIn[i] * dr;
+				rOut[i] += lIn[i] * dr;
+			}
 
 			i++;
 
