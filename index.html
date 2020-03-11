@@ -172,10 +172,10 @@ Promise.all([
 			micState = false;
 		} else {
 			if(m == undefined)
-				navigator.getUserMedia({ audio: true }, stream => {
+				navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
 					m = aC.createMediaStreamSource(stream);
 					m.connect(mg);
-				}, () => {
+				}).catch(() => {
 					mic.style.background = '';
 					alert("Failed getting microphone.");
 					micState = false;
