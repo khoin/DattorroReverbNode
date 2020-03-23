@@ -151,7 +151,7 @@ Promise.all([
 	let mg = aC.createGain();
 	let mx = aC.createGain();
 
-	let reverb = new AudioWorkletNode(aC, 'DattorroReverb');
+	let reverb = new AudioWorkletNode(aC, 'DattorroReverb', { channelCountMode: "explicit", channelCount: 1, outputChannelCount: [2] });
 	
 	esrc.forEach(src => src.connect(mx));
 	mg.connect(reverb);
@@ -172,10 +172,10 @@ Promise.all([
 			micState = false;
 		} else {
 			if(m == undefined)
-				navigator.getUserMedia({ audio: true }, stream => {
+				navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
 					m = aC.createMediaStreamSource(stream);
 					m.connect(mg);
-				}, () => {
+				}).catch(() => {
 					mic.style.background = '';
 					alert("Failed getting microphone.");
 					micState = false;
