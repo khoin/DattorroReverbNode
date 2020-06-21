@@ -60,9 +60,9 @@ class DattorroReverb extends AudioWorkletProcessor {
 				automationRate: "k-rate"
 		},{
 				name: 'excursion',
-				defaultValue: 16,
+				defaultValue: 8,
 				minValue: 0,
-				maxValue: 32,
+				maxValue: 16,
 				automationRate: "k-rate"
 		},{
 				name: 'wet',
@@ -83,12 +83,14 @@ class DattorroReverb extends AudioWorkletProcessor {
 		super(options); 
 
 		this._Delays    = [];
-		this._pDLength  = sampleRate + (128 - sampleRate%128)
+		this._pDLength  = sampleRate + (128 - sampleRate%128); // Pre-delay is always one-second long, rounded to the nearest 128-chunk
 		this._preDelay  = new Float32Array(this._pDLength);
 		this._pDWrite   = 0;
 		this._lp1       = 0.0;
 		this._lp2       = 0.0;
 		this._lp3       = 0.0;
+
+		this._preDelay.fill(0);
 
 		[
 			0.004771345, 0.003595309, 0.012734787, 0.009307483, 
@@ -152,18 +154,17 @@ class DattorroReverb extends AudioWorkletProcessor {
 			dr   = parameters.dry[0]                 ;
 
 		let lIn  = inputs[0][0],
+			rIn  = inputs[0][1],
 			lOut = outputs[0][0],
 			rOut = outputs[0][1];
 
-		// write to predelay, or fill pre-delay with silence if no input
+		// write to predelay
 		if (inputs[0].length != 0) {
 			this._preDelay.set(
 				inputs[0][0],
 				this._pDWrite
 			);
-		} else {
-			this._preDelay.fill(0, this._pDWrite, this._pDWrite + 128);
-		}
+		} 
 
 		let i = 0;
 		while (i < 128) {
@@ -181,16 +182,17 @@ class DattorroReverb extends AudioWorkletProcessor {
 			let split       =  si *  this.readPreDelay(3) + this.readDelay(3);
 
 			// 1Hz (footnote 14, pp. 665)
+			// note: excursion-depth is the only parameter that does not account for sampleRate.
 			let excursion   =  ex * (1 + Math.cos(currentTime*6.28)); 
 			
-			// left
+			// left loop
 			this.writeDelay( 4, split +       dc * this.readDelay(11)             + ft * this.readDelayLAt(4, excursion) ); // tank diffuse 1
 			this.writeDelay( 5,                    this.readDelayLAt(4, excursion)- ft * this.readPreDelay(4)            ); // long delay 1
 			this._lp2        =          (1 - dp) * this.readDelay(5)              + dp * this._lp2                        ; // damp 1
 			this.writeDelay( 6,               dc * this._lp2                      - st * this.readDelay(6)               ); // tank diffuse 2
 			this.writeDelay( 7,                    this.readDelay(6)              + st * this.readPreDelay(6)            ); // long delay 2
 
-			// right
+			// right loop 
 			this.writeDelay( 8, split +       dc * this.readDelay(7)              + ft * this.readDelayLAt(8, excursion) ); // tank diffuse 3
 			this.writeDelay( 9,                    this.readDelayLAt(8, excursion)- ft * this.readPreDelay(8)            ); // long delay 3
 			this._lp3        =          (1 - dp) * this.readDelay(9)              + dp * this._lp3                        ; // damper 2
@@ -216,7 +218,7 @@ class DattorroReverb extends AudioWorkletProcessor {
 			lOut[i] = lo * we;
 			rOut[i] = ro * we;
 
-			if (lIn) {
+			if (lIn.length) {
 				lOut[i] += lIn[i] * dr;
 				rOut[i] += lIn[i] * dr;
 			}
