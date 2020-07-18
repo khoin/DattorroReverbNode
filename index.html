@@ -5,8 +5,12 @@
 	<title>WebAudio Dattorro</title>
 	<style type="text/css">
 		* {	font-family: sans-serif; }
-		label, input+span { font-family: monospace; font-size: 2ex; line-height: 2.2ex;}
-		input { height: 2.2ex; width: 34%;}
+		label, input+span { font-family: monospace; line-height: 2.2ex;}
+		input { height: 2.2ex; width: 50%;}
+		pre { font-family: monospace; font-size: 120%; background: black; color: white; padding: 15px 15px;
+			word-break: break-all;
+    		white-space: pre-wrap;
+		}
 		body {
 			margin: 20px auto;
 			max-width: 880px;
@@ -69,8 +73,13 @@
 		<span></span>
 	</div>
 	<div>
-		<label>Excursion ____(💤 0 ⬅&nbsp;&nbsp;➡ 32🔆): </label> 
-		<input type="range" id="ex" name="excursion" max="16" step="0.1">
+		<label>ExcursionRate (💤 0 ⬅&nbsp;&nbsp;➡ 32🔆): </label> 
+		<input type="range" id="ex" name="excursionRate" max="2" step="0.01">
+		<span></span>
+	</div>
+	<div>
+		<label>ExcursionDepth(💤 0 ⬅&nbsp;&nbsp;➡ 32🔆): </label> 
+		<input type="range" id="ed" name="excursionDepth" max="2" step="0.01">
 		<span></span>
 	</div>
 	<div>
@@ -95,24 +104,38 @@
 
 <div>
 	<h2>
-		dattorro's reverb 📣
+		Dattorro's Reverb 📣 // [<a href="https://github.com/khoin/DattorroReverbNode">git repo</a>]
 	</h2>
 	<h4>
 		a faithful implementation entirely in Javascript in AudioWorklet. flexible &mdash; freezable &mdash; fast &mdash; free! 
 	</h4>
 	<p>
 		💪 flexible (compared to ConvolverNode) <br>
-		🍨 freezable (just set decay to 1!) <br>
-		🚅 fast (around 0.3ms each .process() on CPU 6x slowdown in Chrome DevTools)<br>
-		🆓 free!! (freeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee in so many ways)
+		🍨 freezable (just set decayRate to 1!) <br>
+		🚅 fast? maybe... (0.6ms on 10ms budget, my <a href="https://share.firefox.dev/3hbwN11">set up</a>) (let me know if you do profile it!)<br>
+		🆓 free! (public domain)
 	</p>
-	<h3>📃 papers papers papers</h3>
-	<ul>
-		<li>AudioWorklet spec [<a href="https://webaudio.github.io/web-audio-api/#audioworklet">winky linky</a>]</li>
-		<li>Jon Dattorro's paper [<a href="https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf">pdf linky</a>]</li>
-	</ul>
 
-	<h3>🎼 music music music</h3>
+<h3>🔨 usage</h3>
+<pre>
+aC.addModule('dattorroReverb.js').then(() => {
+  let reverb = new AudioWorkletNode(aC, 'DattorroReverb', { outputChannelCount: [2] });
+  fromNode.connect(reverb);
+  reverb.connect(toNode);
+});
+</pre>
+<div style="width: 33%; float:left; ">
+	<h3>📃 reference</h3>
+	<p>
+		Jon Dattorro's paper [<a href="https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf">pdf linky</a>]
+	</p>
+
+	<h3>⚖ license &amp; 💾 source</h3>
+	<p> public domain + no-liability </p>
+
+</div>
+<div style="width: 66%; float: left; padding: 0 1%; box-sizing: border-box;">
+	<h3>🎼 music</h3>
 	<p>clips are from Placeboing on Freesound under CC 0 and Kikuo's Mikukikuo5 under CC BY-NC-SA.</p>
 	<ul>
 		<li>Placeboing [<a href="https://freesound.org/people/placeboing/sounds/338387/">Freesound</a>]</li>
@@ -120,23 +143,18 @@
 		<li>Sea is [<a href="https://kikuo.bandcamp.com/track/sea-is">Bandcamp</a>]</li>
 	</ul>
 
-	<h3>🤔 personal considerations (i.e., deviations from the paper) & misc.</h3>
-	<ul>
-		<li>refer to README.md for a write-up of these considerations and other minor details</li>
-	</ul>
-
-	<h3>⚖ license &amp; 💾 source</h3>
-	<p> public domain + no-liability // [<a href="https://github.com/khoin/DattorroReverbNode">repo</a>]</p>
+</div>
+	
 </div>
 </body>
 <script type="module">
 const 	aC  = new AudioContext();
 
 const 	presets = [
-	[ 1525  , 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0 , 0.2921, 0.4361 ],
-	[ 0     , 0.928 , 0.7331, 0.4534, 0.8271, 0.7839, 0.1992, 0.5975, 0 , 0.0042, 0.9000 ],
-	[ 0     , 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.195 , 12, 0.915 , 0.194  ],
-	[ 0     , 0.999 , 0.23  , 0.667 , 0.86  , 0.7   , 0.5   , 0.3   , 16, 0.53  , 0.30   ]
+	[ 1525  , 0.5683, 0.4666, 0.5853, 0.3226, 0.6954, 0.6022, 0.6446, 0  , 0   , 0.2921, 0.4361 ],
+	[ 0     , 0.928 , 0.7331, 0.4534, 0.8271, 0.7839, 0.1992, 0.5975, 0  , 0   , 0.0042, 0.9000 ],
+	[ 0     , 0.999 , 0.75  , 0.625 , 1     , 0.5   , 0.711 , 0.005 , 0.3, 1.4 , 0.915 , 0.194  ],
+	[ 0     , 0.999 , 0.23  , 0.667 , 0.86  , 0.7   , 0.5   , 0.3   , 0.7, 1.2 , 0.53  , 0.30   ]
 ];
 
 let audios   = ['placeboing', 'kikuo', 'kikuo2', 'sine'].map(a => new Audio(`./resources/${a}.wav`));
@@ -151,7 +169,7 @@ Promise.all([
 	let mg = aC.createGain();
 	let mx = aC.createGain();
 
-	let reverb = new AudioWorkletNode(aC, 'DattorroReverb', { channelCountMode: "explicit", channelCount: 1, outputChannelCount: [2] });
+	let reverb = new AudioWorkletNode(aC, 'DattorroReverb', { outputChannelCount: [2] });
 	
 	esrc.forEach(src => src.connect(mx));
 	mg.connect(reverb);
@@ -200,7 +218,7 @@ Promise.all([
 	[smol, bige, frez, ether]
 		.forEach((b, i) => 
 			b.onclick = e => {
-				[pd, bw, fi, si, dc, ft, st, dp, ex, dr, we].forEach((p, j) => p.value = presets[i][j]);
+				[pd, bw, fi, si, dc, ft, st, dp, ex, ed, dr, we].forEach((p, j) => p.value = presets[i][j]);
 				push();
 				setTimeout(pull, 200);
 			});

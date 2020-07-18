@@ -15,7 +15,7 @@ You can use this in your project like so:
 
 ```javascript
 yourAudioContext.addModule('dattorroReverb.js').then(() => {
-	let reverb = new AudioWorkletNode(yourAudioContext, 'DattorroReverb');
+	let reverb = new AudioWorkletNode(aC, 'DattorroReverb', { outputChannelCount: [2] });
 
 	originNode.connect(reverb);
 	reverb.connect(destinationNode);
@@ -30,10 +30,11 @@ Here I address the considerations I made that was not explicitly specified in th
 
 **Quote:** "Linear interpolation, or better yet, all-pass interpolation can be efficiently employed [to ...] the two indicated delay lines [...]" (1.3.7, p. 665)
 
-**Decision:** Linear interpolation was for excursion.
+**Decision:** Cubic Interpolation. This is costly, but it is not used a lot.
 
-**Rationale:** Although all-pass interpolation is also inexpensive - one multiplication, two additions ([j.o.s.](https://ccrma.stanford.edu/~jos/pasp/First_Order_Allpass_Interpolation.html)), I've decided to go with linear interpolation. Some artifacts are audible if you listen closely.
+### Not on Excursion
 
+I've decided to implement it so that it is samplerate-independent. This means that the consideration below is voided. 
 
 ### 32 Sample Max Excursion
 
