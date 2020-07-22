@@ -114,7 +114,6 @@ class DattorroReverb extends AudioWorkletProcessor {
 		let len = Math.round(length * sampleRate);
 		let nextPow2 = 2**Math.ceil(Math.log2((len)));
 		this._Delays.push([
-			nextPow2,
 			new Float32Array(nextPow2),
 			len - 1,
 			0|0,
@@ -123,15 +122,16 @@ class DattorroReverb extends AudioWorkletProcessor {
 	}
 
 	writeDelay(index, data) {
-		this._Delays[index][1][this._Delays[index][2]] = data;
+		return this._Delays[index][0][this._Delays[index][1]] = data;
 	}
 
 	readDelay(index) {
-		return this._Delays[index][1][this._Delays[index][3]];
+		return this._Delays[index][0][this._Delays[index][2]];
 	}
 
 	readDelayAt(index, i) {
-		return this._Delays[index][1][(this._Delays[index][3] + i)&this._Delays[index][4]];
+		let d = this._Delays[index];
+		return d[0][(d[2] + i)&d[3]];
 	}
 
 	// cubic interpolation
@@ -139,13 +139,13 @@ class DattorroReverb extends AudioWorkletProcessor {
 	readDelayCAt(index, i) { 
 		let d = this._Delays[index],
 			frac = i-~~i,
-			int  = ~~i + d[3] - 1,
-			mask = d[4];
+			int  = ~~i + d[2] - 1,
+			mask = d[3];
 
-		let x0 = d[1][int++ & mask],
-			x1 = d[1][int++ & mask],
-			x2 = d[1][int++ & mask],
-			x3 = d[1][int   & mask];
+		let x0 = d[0][int++ & mask],
+			x1 = d[0][int++ & mask],
+			x2 = d[0][int++ & mask],
+			x3 = d[0][int   & mask];
 
 		let a  = (3*(x1-x2) - x0 + x3) / 2,
 			b  = 2*x2 + x0 - (5*x1+x3) / 2,
@@ -154,12 +154,8 @@ class DattorroReverb extends AudioWorkletProcessor {
 		return (((a * frac) + b) * frac + c) * frac + x1;
 	}
 
-	readPreDelay(index) {
-		return this._Delays[index][1][this._Delays[index][2]];
-	}
-
-	// Only accepts one input, two channels.
-	// Spits one output, two channels.
+	// First input will be downmixed to mono if number of channels is not 2
+	// Outputs Stereo.
 	process(inputs, outputs, parameters) {
 		const 	pd   = ~~parameters.preDelay[0]          ,
 				bw   = parameters.bandwidth[0]           ,
@@ -168,14 +164,11 @@ class DattorroReverb extends AudioWorkletProcessor {
 				dc   = parameters.decay[0]               ,
 				ft   = parameters.decayDiffusion1[0]     ,
 				st   = parameters.decayDiffusion2[0]     ,
-				dp   = parameters.damping[0]             ,
+				dp   = 1 - parameters.damping[0]         ,
 				ex   = parameters.excursionRate[0]   / sampleRate        ,
 				ed 	 = parameters.excursionDepth[0]  * sampleRate /1000  ,
 				we   = parameters.wet[0]             * 0.6               , // lo & ro both mult. by 0.6 anyways
 				dr   = parameters.dry[0]                 ;
-
-		const 	lOut = outputs[0][0],
-				rOut = outputs[0][1];
 
 		// write to predelay and dry output
 		if (inputs[0].length == 2) {
@@ -204,33 +197,34 @@ class DattorroReverb extends AudioWorkletProcessor {
 			let lo = 0.0,
 				ro = 0.0;
 
-			this._lp1        = this._preDelay[(this._pDLength + this._pDWrite - pd + i)%this._pDLength] * bw + (1 - bw) * this._lp1;
+			this._lp1 += bw * (this._preDelay[(this._pDLength + this._pDWrite - pd + i)%this._pDLength] - this._lp1);
 
 			// pre
-			this.writeDelay(0,                              this._lp1          - fi * this.readDelay(0) );
-			this.writeDelay(1, fi * (this.readPreDelay(0) - this.readDelay(1)) +      this.readDelay(0) );
-			this.writeDelay(2, fi *  this.readPreDelay(1) + this.readDelay(1)  - si * this.readDelay(2) );
-			this.writeDelay(3, si * (this.readPreDelay(2) - this.readDelay(3)) +      this.readDelay(2) );
+			let pre = this.writeDelay(0,             this._lp1          - fi * this.readDelay(0) );
+				pre = this.writeDelay(1, fi * (pre - this.readDelay(1)) +      this.readDelay(0) );
+				pre = this.writeDelay(2, fi *  pre + this.readDelay(1)  - si * this.readDelay(2) );
+				pre = this.writeDelay(3, si * (pre - this.readDelay(3)) +      this.readDelay(2) );
 
-			let split       =  si *  this.readPreDelay(3) + this.readDelay(3);
+			let split       =  si *  pre + this.readDelay(3);
 
-			let excursion   =  ed * (1 + Math.cos(this._excPhase*6.2800)); 
-			let excursion2  =  ed * (1 + Math.sin(this._excPhase*6.2847)); 
-			this._excPhase  += ex;
-
+			// excursions
+			// could be optimized?
+			let exc   =  ed * (1 + Math.cos(this._excPhase*6.2800)); 
+			let exc2  =  ed * (1 + Math.sin(this._excPhase*6.2847)); 
+			
 			// left loop
-			this.writeDelay( 4, split +     dc * this.readDelay(11)               + ft * this.readDelayCAt(4, excursion) ); // tank diffuse 1
-			this.writeDelay( 5,                  this.readDelayCAt(4, excursion)  - ft * this.readPreDelay(4)            ); // long delay 1
-			this._lp2        =        (1 - dp) * this.readDelay(5)                + dp * this._lp2                        ; // damp 1
-			this.writeDelay( 6,             dc * this._lp2                        - st * this.readDelay(6)               ); // tank diffuse 2
-			this.writeDelay( 7,                  this.readDelay(6)                + st * this.readPreDelay(6)            ); // long delay 2
+			let temp =  this.writeDelay( 4, split +     dc * this.readDelay(11)         + ft * this.readDelayCAt(4, exc) ); // tank diffuse 1
+						this.writeDelay( 5,                  this.readDelayCAt(4, exc)  - ft * temp                      ); // long delay 1
+						this._lp2      += dp * (this.readDelay(5) - this._lp2)                                            ; // damp 1
+				temp =  this.writeDelay( 6,             dc * this._lp2                  - st * this.readDelay(6)         ); // tank diffuse 2
+						this.writeDelay( 7,                  this.readDelay(6)          + st * temp                      ); // long delay 2
 
 			// right loop 
-			this.writeDelay( 8, split +     dc * this.readDelay(7)                + ft * this.readDelayCAt(8, excursion2)); // tank diffuse 3
-			this.writeDelay( 9,                  this.readDelayCAt(8, excursion2) - ft * this.readPreDelay(8)            ); // long delay 3
-			this._lp3        =        (1 - dp) * this.readDelay(9)                + dp * this._lp3                        ; // damper 2
-			this.writeDelay(10,             dc * this._lp3                        - st * this.readDelay(10)              ); // tank diffuse 4
-			this.writeDelay(11,                  this.readDelay(10)               + st * this.readPreDelay(10)           ); // long delay 4
+				temp =  this.writeDelay( 8, split +     dc * this.readDelay(7)          + ft * this.readDelayCAt(8, exc2)); // tank diffuse 3
+						this.writeDelay( 9,                  this.readDelayCAt(8, exc2) - ft * temp                      ); // long delay 3
+						this._lp3      += dp * (this.readDelay(9) - this._lp3)                                            ; // damp 2
+				temp =	this.writeDelay(10,             dc * this._lp3                  - st * this.readDelay(10)        ); // tank diffuse 4
+						this.writeDelay(11,                  this.readDelay(10)         + st * temp                      ); // long delay 4
 
 			lo =  this.readDelayAt( 9, this._taps[0])
 				+ this.readDelayAt( 9, this._taps[1])
@@ -248,15 +242,17 @@ class DattorroReverb extends AudioWorkletProcessor {
 				- this.readDelayAt(10, this._taps[12])
 				- this.readDelayAt(11, this._taps[13]);
 
-			lOut[i] += lo * we;
-			rOut[i] += ro * we;			
+			outputs[0][0][i] += lo * we;
+			outputs[0][1][i] += ro * we;		
+
+			this._excPhase  += ex;	
 
 			i++;
 
 			for (let j = 0; j < this._Delays.length; j++) {
 				let d = this._Delays[j];
-				d[2] = (d[2] + 1) & d[4];
-				d[3] = (d[3] + 1) & d[4]; 
+				d[1] = (d[1] + 1) & d[3];
+				d[2] = (d[2] + 1) & d[3]; 
 			}
 		}
 
