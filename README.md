@@ -32,7 +32,7 @@ Here I address the considerations I made that was not explicitly specified in th
 
 **Decision:** Cubic Interpolation. This is costly, but it is not used a lot.
 
-### Not on Excursion
+### Note on Excursion
 
 I've decided to implement it so that it is samplerate-independent. This means that the consideration below is voided. 
 
